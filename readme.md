@@ -20,29 +20,27 @@ GET /seller/
 CRUD (create, Read, Update, Delete) functionality on Product
 GET /product/
 - All products
-  GET /product/{id}
+- 
+GET /product/{id}
 - Get a single product
 - We should get a 404 error when we try to access a non-existed product.
 - 
-  POST /product/
+POST /product/
 - Add a single product
 - Product ids should be non-null and unique
 - product names should be non-null
 - price should be over 0
 - Seller name should refer to an actually existing seller
-- 
-  PUT /product/{id}
+  
+PUT /product/{id}
 - Update a single product
 - product names should be non-null
 - price should be over 0
 - Seller name should refer to an actually existing seller
 
-  DELETE /product/{id}
+DELETE /product/{id}
 - Delete a single product
 - Delete should always return 200, regardless of if the item existed at the start or not. This is convention.
 
 Unit testing of service classes
 Logging within service classes
-Readme file
-
-Javalin
