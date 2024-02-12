@@ -1,6 +1,7 @@
 package org.example.Service;
 
 import org.example.Exception.ProductException;
+import org.example.Exception.SellerException;
 import org.example.Main;
 import org.example.Model.Product;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class ProductService {
     - Seller name should refer to an actually existing seller
      */
 
-    public Product addProduct(Product p) throws ProductException {
+    public Product addProduct(Product p) throws ProductException, SellerException {
         if (!sellerService.isValidSeller(p.getSellerName())) {
             Main.log.warn("Product exception called due to Seller Name not in seller database");
             throw new ProductException("SellerName must exist in Seller database");
@@ -92,7 +93,7 @@ public class ProductService {
     - price should be over 0
     - Seller name should refer to an actually existing seller
      */
-    public void updateProduct(Product product, long id) throws ProductException {
+    public void updateProduct(Product product, long id) throws ProductException, SellerException {
         Product productToUpdate = searchByProductID(id);
         if (sellerService.isValidSeller(product.getSellerName())) {
             productToUpdate.setProductName(product.getProductName());
@@ -104,9 +105,6 @@ public class ProductService {
             throw new ProductException("SellerName must exist in Seller database");
         }
     }
-
-
-
 
 
 /*

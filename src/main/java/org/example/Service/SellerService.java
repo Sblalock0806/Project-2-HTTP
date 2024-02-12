@@ -43,7 +43,7 @@ public class SellerService {
         return s;
     }
 
-    public boolean isValidSeller(String sellerName){
+    public boolean isValidSeller(String sellerName) throws SellerException {
         return sellerList.stream().anyMatch(seller -> seller.getSellerName().equals(sellerName));
     }
 }

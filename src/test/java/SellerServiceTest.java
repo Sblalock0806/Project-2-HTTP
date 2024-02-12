@@ -25,9 +25,66 @@ public class SellerServiceTest {
         Assert.assertTrue(sellerList.isEmpty());
     }
 
+
+    //Test GetAll Sellers and Add Sellers
+    @Test
+    public void testGetAllSellers() throws SellerException {
+
+        Seller sellerA = new Seller("Seller A");
+        Seller sellerB = new Seller("Seller B");
+        List<Seller> expectedSellers = List.of(sellerA, sellerB);
+        sellerService.addSeller(sellerA);
+        sellerService.addSeller(sellerB);
+        assertEquals(expectedSellers, sellerService.getAllSellers());
+    }
+
+    //Test Add Sellers
     @Test
     public void testAddSeller() throws SellerException {
-        Seller seller = sellerService.addSeller();
-        assertEquals(1, sellerService.getAllSellers().size());
+        Seller sellerA = new Seller("Seller A");
+        Seller sellerB = new Seller("Seller B");
+        sellerService.addSeller(sellerA);
+        sellerService.addSeller(sellerB);
+        assertEquals(2, sellerService.getAllSellers().size());
     }
+
+    //Test Add Null Seller Name
+    @Test
+    public void testAddSellerWithNull() throws SellerException {
+        Seller sellerA = new Seller("");
+        try{
+            sellerService.addSeller(sellerA);
+        }catch (SellerException e){
+            return;
+        }
+        throw new AssertionError("Expected SellerException but no exception was thrown");
+    }
+
+
+    @Test
+    public void testAddSellerWithDuplicate() throws SellerException {
+        Seller sellerA = new Seller("Seller A");
+        Seller sellerB = new Seller("Seller A");
+        sellerService.addSeller(sellerA);
+       try{
+           sellerService.addSeller(sellerB);
+       }catch(SellerException e){
+           return;
+       }
+        throw new AssertionError("Error not caught FAIL TEST");
+    }
+
+    //Testing isValidSeller method Valid
+    @Test
+    public void testIsValidSeller() throws SellerException {
+        Seller sellerA = new Seller("Seller A");
+        Seller sellerB = new Seller("Seller B");
+        sellerService.addSeller(sellerA);
+        sellerService.addSeller(sellerB);
+        assertTrue(sellerService.isValidSeller("Seller A"));
+        assertTrue(sellerService.isValidSeller("Seller B"));
+
+    }
+
+
 }
