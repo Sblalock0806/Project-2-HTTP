@@ -3,11 +3,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import org.example.Exception.ProductException;
+import org.example.Exception.ProductNotFoundException;
 import org.example.Exception.SellerException;
 import org.example.Model.Product;
 import org.example.Model.Seller;
 import org.example.Service.ProductService;
 import org.example.Service.SellerService;
+
+import java.sql.SQLException;
 import java.util.List;
 
 //
@@ -54,13 +57,19 @@ public class MainController {
 //                - We should get a 404 error when we try to access a non-existed product.
 
         api.get("product/{id}",context -> {
-            long id = Long.parseLong(context.pathParam("id"));
-            Product p = productService.searchByProductID(id);
-            if(p == null){
-                context.status(404);
-            }else{
-                context.json(p);
-                context.status(200);
+            try {
+                long id = Long.parseLong(context.pathParam("id"));
+                Product p = productService.searchByProductID(id);
+                if (p == null) {
+                    context.status(404);
+                } else {
+                    context.json(p);
+                    context.status(200);
+                }
+            }catch (ProductNotFoundException e) {
+                context.status(404).result("invalid product ID");
+            } catch(ProductException e){
+                context.status(404).result("Product ID not found");
             }
         });
 

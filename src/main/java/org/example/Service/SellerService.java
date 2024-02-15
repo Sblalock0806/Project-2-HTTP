@@ -35,6 +35,10 @@ public class SellerService {
 //    public void addSeller(SellerEntry seller) throws SellerException {
     public void addSeller(Seller s) throws SellerException {
         List<Seller> sellerList = sellerDAO.getAllSellers();
+        if (s.getSellerId() == 0 ) {
+            Main.log.warn("Seller's exception due to sellers name cannot be zero");
+            throw new SellerException("Seller's name cannot be zero.");
+        }
         if (s.getSellerName().isEmpty()) {
             Main.log.warn("Seller's exception due to sellers name cannot be Null");
             throw new SellerException("Seller's name cannot be Null.");
@@ -47,8 +51,8 @@ public class SellerService {
         sellerDAO.insertSeller(s);
     }
 
-    public boolean isValidSeller(String sellerName) throws SellerException {
+    public boolean isValidSeller(long sellerId) throws SellerException {
         List<Seller> sellerList = sellerDAO.getAllSellers();
-        return sellerList.stream().anyMatch(seller -> seller.getSellerName().equals(sellerName));
+        return sellerList.stream().anyMatch(seller -> seller.getSellerId() == sellerId);
     }
 }

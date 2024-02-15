@@ -2,7 +2,9 @@ DROP TABLE Product IF EXISTS;
 DROP TABLE Seller IF EXISTS;
 
 CREATE TABLE Seller (
-    seller_name varchar(255) primary key
+--add seller_id
+    seller_id BIGINT PRIMARY KEY,
+    seller_name varchar(255)
   );
 
 
@@ -10,5 +12,7 @@ CREATE TABLE Seller (
       product_id BIGINT PRIMARY KEY,
       product_name varchar(255),
       price DOUBLE,
-      seller_name varchar(255) references Seller(seller_name)
+--Remove seller_name from Product
+--seller_name varchar(255) references Seller(seller_name)
+      seller_id BIGINT references Seller(seller_id)
     );

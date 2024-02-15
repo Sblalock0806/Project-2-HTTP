@@ -2,9 +2,12 @@ package org.example.Service;
 
 import org.example.DAO.ProductDao;
 import org.example.Exception.ProductException;
+import org.example.Exception.ProductNotFoundException;
 import org.example.Exception.SellerException;
 import org.example.Main;
 import org.example.Model.Product;
+
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,11 +57,11 @@ public class ProductService {
      *  We should get a 404 error when we try to access a non-existed product.
      */
 
-    public Product searchByProductID(long productID) throws ProductException {
-        Main.log.info("Searching by product Id" + productID);
+    public Product searchByProductID(long productID) throws ProductException, ProductNotFoundException, SQLException {
+        Main.log.info("Searching by product Id " + productID);
         Product p = productDao.getProductById(productID);
         if(p == null){
-            throw new ProductException("No product found with that ID");
+            throw new ProductNotFoundException("No product found with that ID");
         }else{
             return p;
         }
@@ -74,7 +77,7 @@ public class ProductService {
      */
 
     public Product addProduct(Product p) throws ProductException, SellerException {
-        if (!sellerService.isValidSeller(p.getSellerName())) {
+        if (!sellerService.isValidSeller(p.getSellerID())) {
             Main.log.warn("Product exception called due to Seller Name not in seller database");
             throw new ProductException("SellerName must exist in Seller database");
         }
@@ -82,9 +85,9 @@ public class ProductService {
             Main.log.warn("Product exception called due to Product name is null");
             throw new ProductException("Product Name cannot be null");
         }
-        if (p.getSellerName() == null || p.getSellerName().isEmpty()) {
-            Main.log.warn("Product exception called due to Seller name is null");
-            throw new ProductException("SellerName name cannot be null");
+        if ((p.getSellerID() == 0)) {
+            Main.log.warn("Product exception called due to Seller id is null or zero");
+            throw new ProductException("SellerID name cannot be zero");
         }
         if (p.getPrice() <= 0.0) {
             Main.log.warn("Product exception called due to price being set to zero or less than zero");
@@ -122,10 +125,10 @@ public class ProductService {
 
     public void updateProduct(Product product, long id) throws ProductException, SellerException {
         Product productToUpdate = productDao.updateProductById(product,id);
-        if (sellerService.isValidSeller(product.getSellerName())) {
+        if (sellerService.isValidSeller(product.getSellerID())) {
             productToUpdate.setProductName(product.getProductName());
             productToUpdate.setPrice(product.getPrice());
-            productToUpdate.setSellerName(product.getSellerName());
+            productToUpdate.setSellerID(product.getSellerID());
             Main.log.info("Updating a product");
         } else {
             Main.log.warn("Product Exception thrown because Seller Name must exist in the Seller database");
@@ -140,12 +143,12 @@ DELETE /product/{id}
 - Delete should always return 200, regardless of if the item existed at the start or not. This is convention.
  */
 
-    private Product getProductByID(long productID)  throws ProductException   {
+    private Product getProductByID(long productID) throws ProductException, SQLException {
         Product p = productDao.getProductById(productID);
         if(p == null){
             throw new ProductException("No product found with that ID");
         }else{
-            return null;
+            return p;
         }
 //        for (Product product : productList) {
 //            if(product.getProductID() == productID){
@@ -157,18 +160,18 @@ DELETE /product/{id}
 //        }
 //        return null;
     }
-    public Product deleteProduct(Product p) throws ProductException{
+    public Product deleteProduct(Product p) throws ProductException, SQLException {
         Product product = getProductByID(p.getProductID());
-        productDao.getAllProducts();
         if (product != null){
             Main.log.info("Deleting product by product id.");
-            productDao.deleteProductById(p.getProductID());
-            System.out.println("Product ID " + p.getProductID() + " has been deleted successfully");
+            productDao.deleteProductById(product.getProductID());
+            System.out.println("Product ID " + product.getProductID() + " has been deleted successfully");
+            return product;
         } else{
             Main.log.info("Product exception thrown because Product ID not found.");
-            throw new ProductException("Product ID " + p.getProductID() + " not found.");
+            throw new ProductException("Product ID " + product.getProductID() + " not found.");
         }
-        return product;
+
     }
 
 

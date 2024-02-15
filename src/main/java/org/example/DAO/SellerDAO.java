@@ -23,8 +23,9 @@ public class SellerDAO {
             PreparedStatement ps = conn.prepareStatement("select * from Seller");
             ResultSet resultSet = ps.executeQuery();
             while(resultSet.next()){
+                long sellerId = resultSet.getLong("seller_id");
                 String sellerName = resultSet.getString("seller_name");
-                Seller newSeller = new Seller(sellerName);
+                Seller newSeller = new Seller(sellerId,sellerName);
                 sellerResults.add(newSeller);
             }
         }catch(SQLException e){
@@ -36,8 +37,9 @@ public class SellerDAO {
     public void insertSeller(Seller s){
         try{
             PreparedStatement ps = conn.prepareStatement("insert into " +
-                    "Seller (seller_name) values (?)");
-            ps.setString(1, s.getSellerName());
+                    "Seller (seller_id,seller_name) values (?,?)");
+            ps.setLong(1, s.getSellerId());
+            ps.setString(2, s.getSellerName());
             ps.executeUpdate();
         }catch(SQLException e){
             e.printStackTrace();

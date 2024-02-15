@@ -3,13 +3,24 @@ package org.example.Model;
 import java.util.Objects;
 
 public class Seller {
+
+    private long sellerId ;
     private String sellerName;
 
 
     public Seller(){}
 
-    public Seller(String sellerName) {
+    public Seller(long sellerId, String sellerName) {
+        this.sellerId = sellerId;
         this.sellerName = sellerName;
+    }
+
+    public long getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(long sellerId) {
+        this.sellerId = sellerId;
     }
 
     public String getSellerName() {
@@ -25,18 +36,19 @@ public class Seller {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Seller seller = (Seller) o;
-        return Objects.equals(sellerName, seller.sellerName);
+        return sellerId == seller.sellerId && Objects.equals(sellerName, seller.sellerName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(sellerName);
+        return Objects.hash(sellerId, sellerName);
     }
 
     @Override
     public String toString() {
         return "Seller{" +
-                "sellerName='" + sellerName + '\'' +
+                "sellerId=" + sellerId +
+                ", sellerName='" + sellerName + '\'' +
                 '}';
     }
 }
