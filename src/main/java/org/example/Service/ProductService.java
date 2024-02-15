@@ -1,5 +1,6 @@
 package org.example.Service;
 
+import org.example.DAO.ProductDao;
 import org.example.Exception.ProductException;
 import org.example.Exception.SellerException;
 import org.example.Main;
@@ -10,14 +11,16 @@ import java.util.List;
 
 public class ProductService {
 
-    List<Product> productList;
+    //List<Product> productList;
 
+    ProductDao productDao;
 
     SellerService sellerService;
 
-    public ProductService(SellerService sellerService) {
+    public ProductService(SellerService sellerService, ProductDao productDao) {
         this.sellerService = sellerService;
-        productList = new ArrayList<>();
+        this.productDao =productDao;
+
     }
 
 
@@ -25,7 +28,18 @@ public class ProductService {
      * GET /product/
      * Get ALL Products
      */
+//    public List<Product> getProductList() {
+//        Main.log.info("Get list of all products");
+//        if (productList.isEmpty()) {
+//            Main.log.info("Request to get product list ran and No products found");
+//            System.out.println("No products found.");
+//        }
+//        return productList;
+//    }
+
+    //Latest change to use SQL/DAO
     public List<Product> getProductList() {
+        List<Product> productList = productDao.getAllProducts();
         Main.log.info("Get list of all products");
         if (productList.isEmpty()) {
             Main.log.info("Request to get product list ran and No products found");
@@ -40,14 +54,14 @@ public class ProductService {
      *  We should get a 404 error when we try to access a non-existed product.
      */
 
-    public Product searchByProductID(long productID) {
+    public Product searchByProductID(long productID) throws ProductException {
         Main.log.info("Searching by product Id" + productID);
-        for (Product product : productList) {
-            if (product.getProductID() == productID) {
-                return product;
-            }
+        Product p = productDao.getProductById(productID);
+        if(p == null){
+            throw new ProductException("No product found with that ID");
+        }else{
+            return p;
         }
-        return null;
     }
 
     /*
@@ -82,7 +96,7 @@ public class ProductService {
         p.setProductID(id);
 //add the product to the list
         Main.log.info("Adding a product");
-        productList.add(p);
+        productDao.addProduct(p);
         return (p);
     }
 
@@ -93,8 +107,21 @@ public class ProductService {
     - price should be over 0
     - Seller name should refer to an actually existing seller
      */
+//    public void updateProduct(Product product, long id) throws ProductException, SellerException {
+//        Product productToUpdate = searchByProductID(id);
+//        if (sellerService.isValidSeller(product.getSellerName())) {
+//            productToUpdate.setProductName(product.getProductName());
+//            productToUpdate.setPrice(product.getPrice());
+//            productToUpdate.setSellerName(product.getSellerName());
+//            Main.log.info("Updating a product");
+//        } else {
+//            Main.log.warn("Product Exception thrown because Seller Name must exist in the Seller database");
+//            throw new ProductException("SellerName must exist in Seller database");
+//        }
+//    }
+
     public void updateProduct(Product product, long id) throws ProductException, SellerException {
-        Product productToUpdate = searchByProductID(id);
+        Product productToUpdate = productDao.updateProductById(product,id);
         if (sellerService.isValidSeller(product.getSellerName())) {
             productToUpdate.setProductName(product.getProductName());
             productToUpdate.setPrice(product.getPrice());
@@ -113,20 +140,29 @@ DELETE /product/{id}
 - Delete should always return 200, regardless of if the item existed at the start or not. This is convention.
  */
 
-    private Product getProductByID(long productID)    {
-        for (Product product : productList) {
-            if(product.getProductID() == productID){
-                Main.log.info("Getting product by product id.");
-                return product;
-            }
+    private Product getProductByID(long productID)  throws ProductException   {
+        Product p = productDao.getProductById(productID);
+        if(p == null){
+            throw new ProductException("No product found with that ID");
+        }else{
+            return null;
         }
-        return null;
+//        for (Product product : productList) {
+//            if(product.getProductID() == productID){
+//                Main.log.info("Getting product by product id.");
+//                return product;
+//            }else{
+//                throw new ProductException("No product found with that ID");
+//            }
+//        }
+//        return null;
     }
     public Product deleteProduct(Product p) throws ProductException{
         Product product = getProductByID(p.getProductID());
+        productDao.getAllProducts();
         if (product != null){
             Main.log.info("Deleting product by product id.");
-            productList.remove(product);
+            productDao.deleteProductById(p.getProductID());
             System.out.println("Product ID " + p.getProductID() + " has been deleted successfully");
         } else{
             Main.log.info("Product exception thrown because Product ID not found.");

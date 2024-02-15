@@ -71,7 +71,7 @@ public class MainController {
                 ObjectMapper om = new ObjectMapper();
                 Seller s = om.readValue(context.body(), Seller.class);
                 sellerService.addSeller(s);
-                context.status(200);
+                context.status(201);
                 context.result("Seller successfully posted: " + s);
             }catch (JsonProcessingException e) {
                 context.status(400);
