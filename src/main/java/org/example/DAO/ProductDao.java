@@ -81,7 +81,6 @@ public class ProductDao {
             ps.setLong(4, id);
             ps.executeUpdate();
             return p;
-
         }catch (SQLException e){
             e.printStackTrace();
         }

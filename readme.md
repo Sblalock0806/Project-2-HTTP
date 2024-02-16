@@ -1,5 +1,6 @@
 // Updated Requirements to include SQL
 // DUE on 2/26/24
+
 HTTP and SQL project
 Two models/ Tables:
 Product

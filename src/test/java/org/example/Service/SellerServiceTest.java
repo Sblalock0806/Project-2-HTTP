@@ -1,96 +1,98 @@
-//package org.example.Service;
-//
-//import org.example.DAO.SellerDAO;
-//import org.example.Exception.SellerException;
-//import org.example.Model.Product;
-//import org.example.Model.Seller;
-//import org.example.Service.ProductService;
-//import org.example.Service.SellerService;
-//import org.junit.Assert;
-//import org.junit.Before;
-//import org.junit.Test;
-//
-//import java.util.List;
-//
-//import static org.junit.Assert.*;
-//public class SellerServiceTest {
-//    SellerService sellerService;
-//    SellerDAO sellerDAO;
-//
-//    ProductService productService;
-//
-//    @Before
-//    public void setup() {
-//        sellerService = new SellerService(sellerDAO);
-//    }
-//
-//    @Test
-//    public void testSellerServerEmptyAtStart() {
-//        List<Seller> sellerList = sellerService.getAllSellers();
-////        ensure that at the start, there are no Product
-//        Assert.assertTrue(sellerList.isEmpty());
-//    }
-//
-//
-//    //Test GetAll Sellers and Add Sellers
-//    @Test
-//    public void testGetAllSellers() throws SellerException {
-//
-//        Seller sellerA = new Seller("Seller A");
-//        Seller sellerB = new Seller("Seller B");
-//        List<Seller> expectedSellers = List.of(sellerA, sellerB);
-//        sellerService.addSeller(sellerA);
-//        sellerService.addSeller(sellerB);
-//        assertEquals(expectedSellers, sellerService.getAllSellers());
-//    }
-//
-//    //Test Add Sellers
-//    @Test
-//    public void testAddSeller() throws SellerException {
-//        Seller sellerA = new Seller("Seller A");
-//        Seller sellerB = new Seller("Seller B");
-//        sellerService.addSeller(sellerA);
-//        sellerService.addSeller(sellerB);
-//        assertEquals(2, sellerService.getAllSellers().size());
-//    }
-//
-//    //Test Add Null Seller Name
-//    @Test
-//    public void testAddSellerWithNull() throws SellerException {
-//        Seller sellerA = new Seller("");
-//        try{
-//            sellerService.addSeller(sellerA);
-//        }catch (SellerException e){
-//            return;
-//        }
-//        throw new AssertionError("Expected SellerException but no exception was thrown");
-//    }
-//
-//
-//    @Test
-//    public void testAddSellerWithDuplicate() throws SellerException {
-//        Seller sellerA = new Seller("Seller A");
-//        Seller sellerB = new Seller("Seller A");
-//        sellerService.addSeller(sellerA);
-//        try{
-//            sellerService.addSeller(sellerB);
-//        }catch(SellerException e){
-//            return;
-//        }
-//        throw new AssertionError("Error not caught FAIL TEST");
-//    }
-//
-//    //Testing isValidSeller method Valid
-//    @Test
-//    public void testIsValidSeller() throws SellerException {
-//        Seller sellerA = new Seller("Seller A");
-//        Seller sellerB = new Seller("Seller B");
-//        sellerService.addSeller(sellerA);
-//        sellerService.addSeller(sellerB);
-//        assertTrue(sellerService.isValidSeller("Seller A"));
-//        assertTrue(sellerService.isValidSeller("Seller B"));
-//
-//    }
-//
-//
-//}
+package org.example.Service;
+import org.example.DAO.SellerDAO;
+import org.example.Exception.SellerException;
+import org.example.Model.Seller;
+import org.junit.Before;
+import org.junit.Test;
+import static org.mockito.Mockito.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
+public class SellerServiceTest {
+    private SellerService sellerService;
+    private SellerDAO sellerDAO;
+
+
+    @Before
+    public void setup() {
+        sellerDAO = mock(SellerDAO.class);
+        sellerService = new SellerService(sellerDAO);
+    }
+
+
+    //Test GetAll Sellers and Add Sellers
+    @Test
+    public void testGetAllSellers() throws SellerException {
+        List<Seller> expectedSellers = new ArrayList<>();
+        expectedSellers.add(new Seller(1, "Seller A"));
+        expectedSellers.add(new Seller(2, "Seller B"));
+        when(sellerDAO.getAllSellers()).thenReturn(expectedSellers);
+
+        List<Seller> actualSeller = sellerService.getAllSellers();
+        System.out.println("Expected Sellers: " + expectedSellers);
+        System.out.println("Actual Sellers: " + actualSeller);
+        assertEquals(expectedSellers.size(), actualSeller.size());
+    }
+
+
+    //    //Test Add Sellers
+    @Test
+    public void testAddSeller() throws SellerException {
+        Seller sellerA = new Seller(1, "Seller A");
+        when(sellerDAO.getAllSellers()).thenReturn(new ArrayList<>());
+
+        sellerService.addSeller(sellerA);
+        verify(sellerDAO, times(1)).insertSeller(sellerA);
+    }
+
+    @Test (expected = SellerException.class)
+    public void testAddSellerWithDuplicate() throws SellerException {
+        Seller sellerA = new Seller(1, "Seller A");
+        List<Seller> existingSellers = new ArrayList<>();
+        existingSellers.add(sellerA);
+        when(sellerDAO.getAllSellers()).thenReturn(existingSellers);
+
+        sellerService.addSeller(sellerA);
+
+    }
+    @Test (expected = SellerException.class)
+    public void testAddSellerWithNullId() throws SellerException {
+        Seller sellerA = new Seller(0, "Seller A");
+
+        sellerService.addSeller(sellerA);
+
+    }
+
+    @Test (expected = SellerException.class)
+    public void testAddSellerWithNullName() throws SellerException {
+        Seller sellerA = new Seller(1, "");
+
+        sellerService.addSeller(sellerA);
+    }
+
+    @Test
+    public void testIsValidSeller() throws SellerException{
+        long existingSellerId = 1;
+        List<Seller> existingSeller = new ArrayList<>();
+        existingSeller.add(new Seller(existingSellerId, "SellerTest"));
+        when(sellerDAO.getAllSellers()).thenReturn(existingSeller);
+
+        boolean result = sellerService.isValidSeller(existingSellerId);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testIsInValidSeller() throws SellerException{
+        long invalidSellerId = 89;
+        List<Seller> existingSeller = new ArrayList<>();
+        existingSeller.add(new Seller(1, "SellerTest"));
+        when(sellerDAO.getAllSellers()).thenReturn(existingSeller);
+
+        boolean result = sellerService.isValidSeller(invalidSellerId);
+        assertFalse(result);
+    }
+
+}
+
+

@@ -143,7 +143,7 @@ DELETE /product/{id}
 - Delete should always return 200, regardless of if the item existed at the start or not. This is convention.
  */
 
-    private Product getProductByID(long productID) throws ProductException, SQLException {
+    public Product getProductByID(long productID) throws ProductException, SQLException {
         Product p = productDao.getProductById(productID);
         if(p == null){
             throw new ProductException("No product found with that ID");
